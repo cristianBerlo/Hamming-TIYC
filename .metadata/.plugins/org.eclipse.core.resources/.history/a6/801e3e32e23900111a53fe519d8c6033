@@ -1,0 +1,12 @@
+package byteController;
+
+import java.util.BitSet;
+import java.util.List;
+
+public class Section {
+ public List<BitSet> section() {
+	BitSet part;
+	List<Bitset> parts = new ArrayList<>();
+	 return null;
+ }
+}

@@ -1,0 +1,31 @@
+package hamming;
+
+import java.math.BigInteger;
+import java.util.BitSet;
+
+public class Hamming {
+	private int control; // cantidad de bits de control
+	private int lenght; //largo del mensaje resultante (informacion + controles) 	
+public byte[] hamming(BitSet string) {
+	BitSet hamming = new BitSet(lenght);
+	int j = 0;
+	int c=0;
+	for(int i=0;i<string.length();i++) {
+	  if(((i + 1) & i) != 0) { // si la posicion es la de un bit de control lo calculo
+		 boolean cont = false; 
+	     int mask = 1 << c;
+		 for(int h=mask; h<lenght;h++ ){
+			if( ((h+1) & mask)==mask) { 
+			 cont= string.get(h)^cont;
+			 }
+			}
+		 hamming.set(i, cont);
+	  }
+	  else { // si es posicion de un bit de informacion copio 
+		  hamming.set(i, string.get(j));
+		  j++;
+	  }
+	}
+	return null;
+}
+}

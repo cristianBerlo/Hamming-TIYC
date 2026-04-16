@@ -1,0 +1,10 @@
+package hamming;
+
+public class Hamming {
+	private int control;
+public String hamming(byte string) {
+	byte mask;
+	return null;
+	
+}
+}

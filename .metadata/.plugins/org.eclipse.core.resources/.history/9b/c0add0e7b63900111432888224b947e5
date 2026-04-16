@@ -1,0 +1,14 @@
+package hamming;
+
+public class Hamming {
+	private int control;
+public String hamming(byte cod) {
+	for(int i=0;i<control;i++) {
+		String mask = getMask(i);
+	}
+	return null;
+}
+public String getMask(int control) {
+	return 2*control;
+}
+}

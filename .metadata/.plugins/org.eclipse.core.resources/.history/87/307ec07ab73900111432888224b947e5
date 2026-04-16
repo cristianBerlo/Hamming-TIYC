@@ -1,0 +1,15 @@
+package hamming;
+
+import java.math.BigInteger;
+
+public class Hamming {
+	private int control;
+public String hamming(byte cod) {
+	for(int i=0;i<control;i++) {
+		int mask = 1 << i; //genero mascara
+		mask = (mask << 1) & mask
+		
+	}
+	return null;
+}
+}
