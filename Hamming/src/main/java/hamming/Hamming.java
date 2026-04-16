@@ -18,7 +18,6 @@ public BitSet hamming(BitSet string) {
 		  hamming.set(i, string.get(j));
 		  j++;
 	  }}
-	
 	  for(int c=0;c<control;c++) {
 	  boolean xor = false; 
 	     int mask = 1 << c;

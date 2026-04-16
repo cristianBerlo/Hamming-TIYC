@@ -8,9 +8,14 @@ public class Section {
  public List<BitSet> section(String string,int size) {
 	List<BitSet> parts = new ArrayList<>();
 	BitSet  part = BitSet.valueOf(string.getBytes());
-	int iter= string.length()/size;
+	int iter= string.length();
 	for(int i=0;i<iter;i++) {
 		parts.add(part.get(i*size,(i*size)+size));
+	     StringBuilder sb = new StringBuilder();
+		   for (int i1 = 7; i1 >=0; i1--) {
+	            sb.append(parts.getLast().get(i1) ? '1' : '0');
+	        }
+			System.out.print(sb.toString());
 	}
 	 return parts;
  }

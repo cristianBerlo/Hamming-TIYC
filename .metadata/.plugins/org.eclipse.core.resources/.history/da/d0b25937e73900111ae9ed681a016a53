@@ -1,0 +1,30 @@
+package hamming;
+
+import java.util.BitSet;
+import java.util.List;
+
+import byteController.Section;
+
+public class Main {
+	  public static void main(String[] args) {
+			Hamming hamming = new Hamming(7,3);
+			BitSet set= new BitSet(4);
+			set.clear();
+			set.set(0);
+			BitSet ham = hamming.hamming(set);
+			Section sec = new Section();
+			String a= "abcde";
+			List<BitSet> list =	sec.section(a, 8); 
+			for(BitSet s: list) {
+		        StringBuilder sb = new StringBuilder();
+				   for (int i = 7 - 1; i >= 0; i--) {
+			            sb.append(s.get(i) ? '1' : '0');
+			        }
+					System.out.print(sb.toString());
+
+				   
+			}
+			
+			
+			}
+}

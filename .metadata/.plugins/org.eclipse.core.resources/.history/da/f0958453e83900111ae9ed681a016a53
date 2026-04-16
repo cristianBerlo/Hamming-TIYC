@@ -1,0 +1,24 @@
+package hamming;
+
+import java.util.BitSet;
+import java.util.List;
+
+import byteController.Section;
+
+public class Main {
+	  public static void main(String[] args) {
+			Hamming hamming = new Hamming(7,3);
+			BitSet set= new BitSet(4);
+			set.clear();
+			set.set(0);
+			BitSet ham = hamming.hamming(set);
+			Section sec = new Section();
+			String a= "A la grande le puse cuca";
+			List<BitSet> list =	sec.section(a, 8); 
+
+				   
+			}
+			
+			
+			}
+
