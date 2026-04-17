@@ -1,9 +1,0 @@
-package byteController;
-
-import java.util.BitSet;
-
-public class Section {
- public BitSet[] section() {
-	 
- }
-}

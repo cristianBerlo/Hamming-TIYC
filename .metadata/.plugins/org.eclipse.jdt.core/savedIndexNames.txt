@@ -1,5 +1,0 @@
-INDEX VERSION 1.134+/home/cristian/eclipse-workspace/teoria de la informacion/.metadata/.plugins/org.eclipse.jdt.core
-2767247094.index
-913872429.index
-1865797976.index
-4254591445.index

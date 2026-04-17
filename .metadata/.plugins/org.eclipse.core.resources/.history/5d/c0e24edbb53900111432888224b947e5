@@ -1,8 +1,0 @@
-package hamming;
-
-public class Hamming {
-	private int control;
-public String hamming(String string) {
-	
-}
-}

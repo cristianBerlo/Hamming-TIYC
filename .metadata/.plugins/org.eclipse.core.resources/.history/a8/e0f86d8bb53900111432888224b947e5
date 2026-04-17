@@ -1,7 +1,0 @@
-package hamming;
-
-public class Hamming {
-public String hamming(byte string) {
-	
-}
-}
