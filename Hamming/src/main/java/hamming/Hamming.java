@@ -15,20 +15,28 @@ public Hamming(int lenght) {
 
 public BitSet hammingTrans(BitSet hamming) {
 	BitSet string;
-	BitSet sindrome= new BitSet(control);
+	int syndrome= 0;
+	int errors =0;
 	for(int c=0;c<control;c++) { //calculo bits de control
 		  boolean xor = false; 
 		     int mask = 1 << c;
 			 for (int h = mask; h < lenght; h++) {
 				 if ((h & mask) != 0) {
 		                xor ^= hamming.get(h-1);
-		                //System.out.print(hamming.get(h-1) +" "+c+" "+" "+h+"  ");
-		         
+		                //System.out.print(hamming.get(h-1) +" "+c+" "+" "+h+"  ");    
 				 }
 			 }
-			 sindrome.set(c, xor);
-		    }
-	return sindrome;
+			  if (xor) {
+			        syndrome |= (1 << c);
+			    }
+		     }
+	if(syndrome!=0) {  
+			hamming.flip(syndrome-1);
+			errors++;} // incremento el contador de errores
+	if(hamming.cardinality()%2!=0) { // si la pariedad no se respeta incremento contador de errores
+		errors++; 
+	}
+	return errors<2 ? hamming : null; //si hay dos errores la funcion no retorna nada
 }
 public BitSet parity(BitSet string) {
 	int xor= string.cardinality()%2;
