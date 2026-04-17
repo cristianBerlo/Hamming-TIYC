@@ -13,7 +13,19 @@ public Hamming(int lenght) {
     }
 }
 
-public BitSet hammingTrans(BitSet hamming) {
+public BitSet translate(BitSet hamming) {
+	BitSet string= new BitSet(lenght-control-1); // Cantidad de bits de informacion
+	int j=0;
+		for(int i=0;i< lenght;i++) {
+			  if( (i & (i+1)) !=0 ) { // ignoro bits de control
+				  string.set(j, hamming.get(i)); 
+				  j++; // j es la posicion en el string traducido, i la posicion en el string hamminisado
+			  }
+	}	
+	return string;
+}
+
+public BitSet ErrorHandler(BitSet hamming) {
 	BitSet string;
 	int syndrome= 0;
 	int errors =0;
