@@ -1,24 +1,9 @@
 package hamming;
 
-import java.util.BitSet;
-import java.util.List;
-
-import byteController.Section;
+import javax.swing.SwingUtilities;
 
 public class Main {
-	  public static void main(String[] args) {
-			Hamming hamming = new Hamming(7,3);
-			BitSet set= new BitSet(4);
-			set.clear();
-			set.set(0);
-			BitSet ham = hamming.hamming(set);
-			Section sec = new Section();
-			String a= "prueba bi be ba ";
-			List<BitSet> list =	sec.section(a, 8); 
-
-				   
-			}
-			
-			
-			}
-
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new HammingGui().showGui());
+    }
+}
