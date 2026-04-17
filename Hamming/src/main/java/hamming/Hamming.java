@@ -8,7 +8,7 @@ public class Hamming {
 public Hamming(int lenght) {
 	this.lenght=lenght;
     control = 0;
-    while (Math.pow(2, control) < (lenght + 1)) {
+    while (Math.pow(2, control) < (lenght)) { //Considero que length ya es +1 por el bit de pariedad
         control++;
     }
 }
