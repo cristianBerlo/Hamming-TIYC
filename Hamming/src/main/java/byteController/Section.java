@@ -35,7 +35,7 @@ public List<BitSet> errorGeneration(float chance, List<BitSet>parts){
  
  public void printBytes(BitSet bytes) {
 	 StringBuilder sb = new StringBuilder();
-	   for (int i1 = 0; i1 <size-1; i1++) {
+	   for (int i1 = 0; i1 <size; i1++) {
           sb.append(bytes.get(i1) ? '1' : '0');
       }
 		System.out.print(sb.toString());
