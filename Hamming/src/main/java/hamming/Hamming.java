@@ -12,6 +12,9 @@ public Hamming(int lenght) {
         control++;
     }
 }
+public int getDataBits() {
+    return lenght - control - 1;
+}
 
 public BitSet translate(BitSet hamming) {
 	BitSet string= new BitSet(lenght-control-1); // Cantidad de bits de informacion
@@ -74,10 +77,17 @@ public BitSet hamming(BitSet string) {
 		 }
 		 hamming.set(mask-1, xor);
 	    }
-		int xor= string.cardinality()%2; //cardinality devuelve la cantidad de bits seteados a 1, el resto puede ser 0 si es par o 1 si es impar
-		string.set(lenght, xor); // agrego el bit de pariedad en la ultima posicion
+		boolean xor = false;
+		for (int i = 0; i < lenght - 1; i++) {
+			xor ^= hamming.get(i);
+		}
+		hamming.set(lenght-1, xor); // agrego el bit de pariedad en la ultima posicion
 	return hamming; 
 }
+
+public int getLenght() {
+		return lenght;
+	}
 
 
 }

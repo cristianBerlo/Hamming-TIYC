@@ -1,5 +1,7 @@
 package hamming;
 
+import java.util.BitSet;
+
 import javax.swing.SwingUtilities;
 
 public class Main {

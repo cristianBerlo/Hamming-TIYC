@@ -1,5 +1,5 @@
 package hamming;
-
+import byteController.HammingFileProccesor;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -100,12 +100,12 @@ public class HammingGui extends JFrame {
 
         selectedFile = chooser.getSelectedFile().toPath();
         selectedFileLabel.setText("Archivo: " + selectedFile.getFileName());
-        originalArea.setText(loadFilePreview(selectedFile));
+        originalArea.setText(loadFilePreview(selectedFile));//
         recoveredArea.setText("");
         statusLabel.setText("Archivo cargado: " + selectedFile.getFileName());
     }
 
-    private void protectFile(ActionEvent event) {
+    private void protectFile(ActionEvent event) { //proteccion del archivo
         if (selectedFile == null || !selectedFile.toString().toLowerCase().endsWith(".txt")) {
             showError("Seleccione primero un archivo .txt para proteger.");
             return;
@@ -117,8 +117,12 @@ public class HammingGui extends JFrame {
             return;
         }
 
-        statusLabel.setText("Función de protección aún no implementada.");
-        JOptionPane.showMessageDialog(this, "Protección deshabilitada temporalmente.\nImplementa HammingFileProcessor después.", "Pendiente", JOptionPane.INFORMATION_MESSAGE);
+        if (HammingFileProccesor.processFileProtec(selectedFile, moduleBits)) {//aqui la proteccion del archivo
+            statusLabel.setText("Archivo protegido exitosamente.");
+        } else {
+            showError("Error al proteger el archivo.");
+        }
+
     }
 
     private void injectErrors(ActionEvent event) {
@@ -137,8 +141,12 @@ public class HammingGui extends JFrame {
             return;
         }
 
-        statusLabel.setText("Función de desprotección aún no implementada.");
-        JOptionPane.showMessageDialog(this, "Desprotección temporalmente deshabilitada.", "Pendiente", JOptionPane.INFORMATION_MESSAGE);
+        if(HammingFileProccesor.unprotectFileProtect(selectedFile, selectedModuleBits()) != null) {
+            statusLabel.setText("Archivo desprotegido exitosamente.");
+            recoveredArea.setText(loadFilePreview(Path.of("archivo_recuperado.txt")));
+        } else {
+            showError("Error al desproteger el archivo. Puede haber demasiados errores para corregir.");
+        }
     }
 
     private boolean isHammingFile(Path file) {
