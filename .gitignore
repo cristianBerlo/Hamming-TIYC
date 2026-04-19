@@ -3,6 +3,7 @@
 .classpath
 .settings/
 .metadata
+
 # Eclipse IDE files
 *.log
 
