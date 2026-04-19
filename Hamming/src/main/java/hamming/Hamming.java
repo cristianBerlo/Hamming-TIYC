@@ -1,19 +1,29 @@
 package hamming;
 import java.util.BitSet;
+import java.util.Random;
 
 public class Hamming {
 	private int control; // cantidad de bits de control
 	private int lenght; //largo del mensaje resultante (informacion + controles) 
-	
+	private int information;// cantidad de bits de informacion
+	Random random;
 public Hamming(int lenght) {
+	random= new Random();
 	this.lenght=lenght;
     control = 0;
     while (Math.pow(2, control) < (lenght)) { //Considero que length ya es +1 por el bit de pariedad
         control++;
     }
+    this.information=lenght-control;
 }
 public int getDataBits() {
     return lenght - control - 1;
+}
+public BitSet errorGeneration(float chance, BitSet string){
+	if(random.nextFloat()<=chance) { // si el numero generado entra en la probabilidad 
+		string.flip(random.nextInt(0, lenght));
+	}
+	return string; 
 }
 
 public BitSet translate(BitSet hamming) {

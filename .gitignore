@@ -1,0 +1,26 @@
+# Eclipse project metadata
+.project
+.classpath
+.settings/
+.metadata
+# Eclipse IDE files
+*.log
+
+# Java build output
+bin/
+target/
+
+# Maven / Gradle directories (if using them)
+.mvn/
+.gradle/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Eclipse workspace-specific files
+*.launch
+*.bak
+
+# Other
+*.swp

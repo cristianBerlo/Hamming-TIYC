@@ -130,9 +130,15 @@ public class HammingGui extends JFrame {
             showError("Seleccione un archivo .HA1, .HA2 o .HA3 para introducir errores.");
             return;
         }
+        int moduleBits = selectedModuleBits();
+        if (HammingFileProccesor.processFileError(selectedFile, moduleBits)) {//aqui la proteccion del archivo
+            statusLabel.setText("Errores inyectados exitosamente.");
+        } else {
+            showError("Error al inyectar errores el archivo.");
+        }
 
-        statusLabel.setText("Función de inyección de errores aún no implementada.");
-        JOptionPane.showMessageDialog(this, "Inyección de errores temporalmente deshabilitada.", "Pendiente", JOptionPane.INFORMATION_MESSAGE);
+      //  statusLabel.setText("Función de inyección de errores aún no implementada.");
+    //    JOptionPane.showMessageDialog(this, "Inyección de errores temporalmente deshabilitada.", "Pendiente", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void decodeFile(boolean correct) {
@@ -141,7 +147,7 @@ public class HammingGui extends JFrame {
             return;
         }
 
-        if(HammingFileProccesor.unprotectFileProtect(selectedFile, selectedModuleBits()) != null) {
+        if(HammingFileProccesor.unprotectFileProtect(selectedFile, selectedModuleBits(), correct) != null) {
             statusLabel.setText("Archivo desprotegido exitosamente.");
             recoveredArea.setText(loadFilePreview(Path.of("archivo_recuperado.txt")));
         } else {
