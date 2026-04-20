@@ -157,7 +157,7 @@ public class HammingGui extends JFrame {
 
     private boolean isHammingFile(Path file) {
         String name = file.getFileName().toString().toUpperCase();
-        return name.endsWith(".HA1") || name.endsWith(".HA2") || name.endsWith(".HA3");
+        return name.endsWith(".HA1") || name.endsWith(".HA2") || name.endsWith(".HA3") || name.endsWith(".HE1") || name.endsWith(".HE2") || name.endsWith(".HE3");
     }
 
     private boolean isHammingErrorFile(Path file) {

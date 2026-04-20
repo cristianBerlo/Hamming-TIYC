@@ -15,6 +15,17 @@ public class HammingFileProccesor {
 	            int totalBits = allBytes.length * 8;
 	            BitSet result = new BitSet();
 	            int resultIndex = 0;
+	            String originalName = pathString.getFileName().toString();
+	            int dotIndex = originalName.lastIndexOf('.');
+	            String baseName = (dotIndex == -1) ? originalName : originalName.substring(0, dotIndex);
+	            int sizeModul=0;
+	            switch (moduleBits){ //luego modififcar  clase hamming para que me de el largo del bloque de datos y no tener que hacer esto
+	                case 8: sizeModul = 1;break;
+	                case 1024: sizeModul = 2; break;
+	                case 16384: sizeModul = 3; break;
+	            }
+	            String newName = baseName + ".HE" + sizeModul;
+	            Path outputPath = pathString.getParent().resolve(newName);      
 	            for (int i = 0; i < totalBits; i += moduleBits) {// procesar en bloques de moduleBits
 	                BitSet blok = new BitSet(moduleBits);
 	                blok = bitsFile.get(i,i+moduleBits ); //Hace lo mismo pero con un nivel de iteracion menos
@@ -29,7 +40,7 @@ public class HammingFileProccesor {
 	                    output[i / 8] |= (1 << (i % 8));
 	                } //Cristian si estas leyendo esto no uses toByteArray() borra los ultimos bits si son 0s
 	            }
-	            Files.write(pathString, output); 
+	            Files.write(outputPath, output); 
 	            return true;
 	        } catch (IOException e) {
 	            e.printStackTrace();
