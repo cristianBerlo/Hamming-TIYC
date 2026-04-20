@@ -62,8 +62,15 @@ public class HammingGui extends JFrame {
         recoveredArea = createTextArea("Texto recuperado");
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-                new JScrollPane(originalArea), new JScrollPane(recoveredArea));
+                new JScrollPane(originalArea,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), new JScrollPane(recoveredArea,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
         splitPane.setResizeWeight(0.5);
+        originalArea.setLineWrap(true);
+        originalArea.setWrapStyleWord(true);
+
+        recoveredArea.setLineWrap(true);
+        recoveredArea.setWrapStyleWord(true);
 
         statusLabel = new JLabel("Listo.");
 
