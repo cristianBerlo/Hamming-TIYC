@@ -1,13 +1,12 @@
 package byteController;
-import hamming.Hamming;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.BitSet;
-import java.util.List;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.util.BitSet;
+
+import hamming.Hamming;
 public class HammingFileProccesor {
-	 public static Boolean processFileError(Path pathString, int moduleBits) {
+	     public static Boolean processFileError(Path pathString, int moduleBits) {
 	        Hamming hamming = new Hamming(moduleBits);
 	        try {
 	            byte[] allBytes = Files.readAllBytes(pathString);// leer todo el archivo como bytes
@@ -26,7 +25,8 @@ public class HammingFileProccesor {
 	            }
 	            String newName = baseName + ".HE" + sizeModul;
 	            Path outputPath = pathString.getParent().resolve(newName);      
-	            for (int i = 0; i < totalBits; i += moduleBits) {// procesar en bloques de moduleBits
+	            for (int i = 0; i < totalBits; i += moduleBits) {// procesar en bloques de moduleBits  0-8,8-16,16-24
+
 	                BitSet blok = new BitSet(moduleBits);
 	                blok = bitsFile.get(i,i+moduleBits ); //Hace lo mismo pero con un nivel de iteracion menos
 	                BitSet protecBloack = hamming.errorGeneration(0.8f,blok); //agrego error a cada bloque
@@ -113,7 +113,7 @@ try {
     for (int i = 0; i < totalBits; i += blockSize) {
 
         BitSet block = new BitSet(blockSize);
-        block = bitsFile.get(i,i+blockSize ); // Un nivel menos de anidacion
+        block = bitsFile.get(i,i+blockSize ); // 
         /*for (int j = 0; j < blockSize; j++) {
             if (i + j < totalBits) {
                 block.set(j, bitsFile.get(i + j));
@@ -126,7 +126,7 @@ try {
          datos = hamming.translate(datos);}else {
         	 return null;
          }}
-        else {
+        else { //nani esta medio meh el boolean correct,pero bue
             datos = hamming.translate(block);
         }
         for (int k = 0; k < hamming.getDataBits(); k++) {
