@@ -107,10 +107,10 @@ public class HammingGui extends JFrame {
 
         selectedFile = chooser.getSelectedFile().toPath();
         selectedFileLabel.setText("Archivo: " + selectedFile.getFileName());
-        originalArea.setText(loadFilePreview(selectedFile));//
-        recoveredArea.setText("");
-        statusLabel.setText("Archivo cargado: " + selectedFile.getFileName());
-    }
+        if (selectedFile == null || !isHammingFile(selectedFile) && !isHammingErrorFile(selectedFile)) {
+            originalArea.setText(loadFilePreview(selectedFile));
+            statusLabel.setText("Archivo cargado: " + selectedFile.getFileName());} 
+        }
 
     private void protectFile(ActionEvent event) { //proteccion del archivo
         if (selectedFile == null || !selectedFile.toString().toLowerCase().endsWith(".txt")) {
@@ -153,10 +153,17 @@ public class HammingGui extends JFrame {
             showError("Seleccione un archivo .HAx o .HEx para desproteger.");
             return;
         }
-
-        if(HammingFileProccesor.unprotectFileProtect(selectedFile, selectedModuleBits(), correct) != null) {
-            statusLabel.setText("Archivo desprotegido exitosamente.");
-            recoveredArea.setText(loadFilePreview(Path.of("archivo_recuperado.txt")));
+        Path res = HammingFileProccesor.unprotectFileProtect(selectedFile, selectedModuleBits(), correct);
+        if( res!=null) {
+        	byte[] data;
+			try {
+				data = Files.readAllBytes(res);
+				String txt= new String(data, java.nio.charset.StandardCharsets.UTF_8);
+	        	recoveredArea.setText(txt);
+	        	statusLabel.setText("Archivo desprotegido exitosamente.");
+			} catch (IOException e) {
+				showError("Error al desproteger el archivo. Puede haber demasiados errores para corregir.");
+			}
         } else {
             showError("Error al desproteger el archivo. Puede haber demasiados errores para corregir.");
         }

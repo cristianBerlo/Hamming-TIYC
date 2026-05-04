@@ -97,7 +97,7 @@ public class HammingFileProccesor {
     }
     
 
-public static Boolean unprotectFileProtect(Path pathString, int moduleBits, boolean correct) {
+public static Path unprotectFileProtect(Path pathString, int moduleBits, boolean correct) {
     Hamming hamming = new Hamming(moduleBits);
 
 try {
@@ -134,12 +134,22 @@ try {
         }
     }
     byte[] output = result.toByteArray();
-    Files.write(Path.of("archivo_recuperado.txt"), output);
-    return true;
+    String originalName = pathString.getFileName().toString();
+    int dotIndex = originalName.lastIndexOf('.');
+    String baseName = (dotIndex == -1) ? originalName : originalName.substring(0, dotIndex);
+    int sizeModul=0;
+    switch (moduleBits){ //luego modififcar  clase hamming para que me de el largo del bloque de datos y no tener que hacer esto
+        case 8: sizeModul = 1;break;
+        case 1024: sizeModul = 2; break;
+        case 16384: sizeModul = 3; break;
+    }
+    String newName = baseName + ".RHA" + sizeModul;
+    Files.write(Path.of(newName), output);
+    return Path.of(newName);
 
 } catch (IOException e) {
     e.printStackTrace();
-    return false;
+    return null;
 }
 }
 }
