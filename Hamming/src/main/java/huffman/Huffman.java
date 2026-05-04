@@ -3,17 +3,25 @@ import java.util.HashMap;
 import java.util.PriorityQueue;
 
 public class Huffman {
-    private HashMap<Byte, Double> frecuencyTable;
+    private float frecuencyTable[];
     private HashMap<Byte, String> huffmanCodes = new HashMap<>();
 
-    public Huffman(HashMap<Byte, Double> frecuencyTable) {
-        this.frecuencyTable = frecuencyTable;
+    public Huffman(float[] freq) {
+        this.frecuencyTable = freq;
     }
     public Node buildTree() {
         PriorityQueue<Node> queue = new PriorityQueue<>();
-        frecuencyTable.forEach((byteKey, freq) -> {
+     /*   frecuencyTable.forEach((byteKey, freq) -> {
             queue.add(new Node(byteKey, freq));
         });
+       */
+        for (int i = 0; i < frecuencyTable.length; i++) {
+            if (frecuencyTable[i] > 0) {
+                System.out.println("add");
+            	byte b = (byte) i;
+                queue.add(new Node(b, frecuencyTable[i]));
+            }
+        }
         while (queue.size() > 1) {
             Node left = queue.poll();
             Node right = queue.poll();
@@ -25,7 +33,6 @@ public class Huffman {
     }
     
     public void preOrder(Node root, String code) {
-        
         if (root == null) {
             return;
         }
@@ -35,6 +42,7 @@ public class Huffman {
         preOrder(root.getLeft(), code + "0");
         preOrder(root.getRight(), code + "1");
     }
+    
     public HashMap<Byte, String> getHuffmanCodes() {
         return huffmanCodes;
     }

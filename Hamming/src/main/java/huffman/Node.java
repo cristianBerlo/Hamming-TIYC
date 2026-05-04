@@ -2,10 +2,10 @@ package huffman;
 
 public class Node implements Comparable<Node>{
     private byte value;
-    private double frecuency;
+    private float frecuency;
     private Node left;
     private Node right;
-    public Node(byte value, double frecuency) {
+    public Node(byte value, float frecuency) {
         this.value = value;
         this.frecuency = frecuency;
         this.left = null;
