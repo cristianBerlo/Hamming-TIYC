@@ -5,7 +5,7 @@ import java.util.BitSet;
 
 import javax.swing.SwingUtilities;
 
-import hamming.HammingGui;
+import byteController.Gui;
 
 public class Main {
     public static void main(String[] args) {
