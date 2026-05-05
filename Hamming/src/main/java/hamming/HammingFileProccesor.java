@@ -1,12 +1,10 @@
-package byteController;
+package hamming;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.BitSet;
-
-import hamming.Hamming;
 public class HammingFileProccesor {
-	     public static Boolean processFileError(Path pathString, int moduleBits) {
+	     public static Boolean processFileError(Path pathString, int moduleBits, boolean one) {
 	        Hamming hamming = new Hamming(moduleBits);
 	        try {
 	            byte[] allBytes = Files.readAllBytes(pathString);// leer todo el archivo como bytes
@@ -29,7 +27,12 @@ public class HammingFileProccesor {
 
 	                BitSet blok = new BitSet(moduleBits);
 	                blok = bitsFile.get(i,i+moduleBits ); //Hace lo mismo pero con un nivel de iteracion menos
-	                BitSet protecBloack = hamming.errorGeneration(0.8f,blok); //agrego error a cada bloque
+	                BitSet protecBloack;
+	                if(one) {
+	                 protecBloack = hamming.errorGeneration(0.8f,blok);
+	                }else {
+	                	protecBloack = hamming.TwoerrorGeneration(0.8f,blok);
+	                } //agrego error a cada bloque
 	                for (int k = 0; k < hamming.getLenght(); k++) { 
 	                    result.set(resultIndex++, protecBloack.get(k));
 	                }
@@ -134,7 +137,7 @@ try {
         }
     }
     byte[] output = result.toByteArray();
-    String originalName = pathString.getFileName().toString();
+    String originalName = pathString.toString();
     int dotIndex = originalName.lastIndexOf('.');
     String baseName = (dotIndex == -1) ? originalName : originalName.substring(0, dotIndex);
     int sizeModul=0;
@@ -146,7 +149,6 @@ try {
     String newName = baseName + ".RHA" + sizeModul;
     Files.write(Path.of(newName), output);
     return Path.of(newName);
-
 } catch (IOException e) {
     e.printStackTrace();
     return null;

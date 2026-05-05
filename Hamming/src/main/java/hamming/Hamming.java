@@ -25,7 +25,13 @@ public BitSet errorGeneration(float chance, BitSet string){
 	}
 	return string; 
 }
-
+public BitSet TwoerrorGeneration(float chance, BitSet string){
+	if(random.nextFloat()<=chance) { // si el numero generado entra en la probabilidad 
+		string.flip(random.nextInt(0, lenght));
+		string.flip(random.nextInt(0, lenght));		
+	}
+	return string; 
+}
 public BitSet translate(BitSet hamming) {
 	BitSet string= new BitSet(lenght-control-1); // Cantidad de bits de informacion
 	int j=0;
