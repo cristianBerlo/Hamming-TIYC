@@ -37,7 +37,7 @@ public class HuffmanFileProcess{
         
     }
     public static String processFileHuf(Path stringPath) {
-    	String originalName = stringPath.getFileName().toString();
+    	String originalName = stringPath.toString();
          int dotIndex = originalName.lastIndexOf('.');
          String baseName = (dotIndex == -1) ? originalName : originalName.substring(0, dotIndex);
          String newName = baseName + ".DHUF";

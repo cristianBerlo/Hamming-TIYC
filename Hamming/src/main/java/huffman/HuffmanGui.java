@@ -1,6 +1,8 @@
 package huffman;
-import byteController.HammingFileProccesor;
 import javax.swing.*;
+
+import hamming.HammingFileProccesor;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
