@@ -60,28 +60,33 @@ public class HuffmanFileProcess{
     		        HashMap codes = huffman.getHuffmanCodes();
     		        huffman.preOrder(root, "");
     		        Node current = root;
-            		for(int i=0; i<bytes ;) {
-            			b = dis.read();
-            			String bits = String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0');
-    		        	for (char bit : bits.toCharArray()) {
-    		                if (bit == '0') {
-    		                    current = current.getLeft();
-    		                } else {
-    		                    current = current.getRight();
-    		                }
-    		                if (current.getLeft() == null && current.getRight() == null) {
-    		                    dos.write(current.getValue());
-    		                    i++;
-    		                    current = root; 
-    		                }
-    		            }
-    		        }
-            		return newName;
-    		        }
-    		       catch (IOException e) {
-    		    	   return "";
-    		                      }
-    	
+                            for (int i = 0; i < bytes; ) {
+                                b = dis.read();
+                                if (b == -1) {
+                                    break;
+                                }
+                                String bits = String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0');
+                                for (char bit : bits.toCharArray()) {
+                                    if (bit == '0') {
+                                        current = current.getLeft();
+                                    } else {
+                                        current = current.getRight();
+                                    }
+                                    if (current.getLeft() == null && current.getRight() == null) {
+                                        dos.write(current.getValue());
+                                        i++;
+                                        current = root;
+                                        if (i >= bytes) {
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            return newName;
+                        }
+                        catch (IOException e) {
+                            return "";
+                        }
     }
     
     public static boolean processFile(Path stringPath) {
