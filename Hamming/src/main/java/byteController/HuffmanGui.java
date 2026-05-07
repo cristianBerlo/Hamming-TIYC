@@ -145,8 +145,10 @@ public class HuffmanGui extends JFrame {
         if (resultPath == null || resultPath.isBlank()) {
             showError("Error al descompactar el archivo.");
         } else {
+            Path generated = Path.of(resultPath);
+            generatedFileLabel.setText("Generado: " + generated.getFileName());
             statusLabel.setText("Archivo descompactado exitosamente.");
-            compactedArea.setText(loadFilePreview(Path.of(resultPath)));
+            compactedArea.setText(loadFilePreview(generated));
         }
     }
 
@@ -156,22 +158,39 @@ public class HuffmanGui extends JFrame {
             return;
         }
         try {
-            long originalSize = Files.size(selectedFile);
-            Path compressed = Path.of(compactedFilePath(selectedFile));
+            long selectedSize = Files.size(selectedFile);
+            Path counterpart = statisticsCounterpart(selectedFile);
             StringBuilder stats = new StringBuilder();
             stats.append("Archivo seleccionado: ").append(selectedFile.getFileName()).append("\n");
-            stats.append("Tamaño: ").append(originalSize).append(" bytes\n");
+            stats.append("Tamaño: ").append(selectedSize).append(" bytes\n");
 
-            if (Files.exists(compressed)) {
-                long compressedSize = Files.size(compressed);
-                stats.append("Archivo comprimido: ").append(compressed.getFileName()).append("\n");
-                stats.append("Tamaño comprimido: ").append(compressedSize).append(" bytes\n");
-                if (originalSize > 0) {
-                    double ratio = (double) compressedSize / originalSize;
-                    stats.append(String.format("Relación de compresión: %.2f%%\n", ratio * 100));
+            if (Files.exists(counterpart)) {
+                long counterpartSize = Files.size(counterpart);
+                String selectedName = selectedFile.getFileName().toString().toUpperCase();
+                if (selectedName.endsWith(".HUF")) {
+                    stats.append("Archivo descomprimido: ").append(counterpart.getFileName()).append("\n");
+                    stats.append("Tamaño descomprimido: ").append(counterpartSize).append(" bytes\n");
+                    if (counterpartSize > 0) {
+                        double ratio = (double) selectedSize / counterpartSize;
+                        stats.append(String.format("Relación de compresión: %.2f%%\n", ratio * 100));
+                    }
+                } else if (selectedName.endsWith(".DHUF")) {
+                    stats.append("Archivo comprimido: ").append(counterpart.getFileName()).append("\n");
+                    stats.append("Tamaño comprimido: ").append(counterpartSize).append(" bytes\n");
+                    if (selectedSize > 0) {
+                        double ratio = (double) counterpartSize / selectedSize;
+                        stats.append(String.format("Relación de compresión: %.2f%%\n", ratio * 100));
+                    }
+                } else {
+                    stats.append("Archivo comprimido: ").append(counterpart.getFileName()).append("\n");
+                    stats.append("Tamaño comprimido: ").append(counterpartSize).append(" bytes\n");
+                    if (selectedSize > 0) {
+                        double ratio = (double) counterpartSize / selectedSize;
+                        stats.append(String.format("Relación de compresión: %.2f%%\n", ratio * 100));
+                    }
                 }
             } else {
-                stats.append("No se encontró el archivo comprimido esperado: ").append(compressed.getFileName()).append("\n");
+                stats.append("No se encontró el archivo relacionado: ").append(counterpart.getFileName()).append("\n");
             }
 
             JOptionPane.showMessageDialog(this, stats.toString(), "Estadísticas", JOptionPane.INFORMATION_MESSAGE);
@@ -210,6 +229,24 @@ public class HuffmanGui extends JFrame {
         int dotIndex = originalName.lastIndexOf('.');
         String baseName = (dotIndex == -1) ? originalName : originalName.substring(0, dotIndex);
         return file.getParent().resolve(baseName + ".HUF").toString();
+    }
+
+    private Path statisticsCounterpart(Path file) {
+        String originalName = file.getFileName().toString();
+        String baseName = stripFileExtension(originalName);
+        String upperName = originalName.toUpperCase();
+        if (upperName.endsWith(".HUF")) {
+            return file.getParent().resolve(baseName + ".DHUF");
+        }
+        if (upperName.endsWith(".DHUF")) {
+            return file.getParent().resolve(baseName + ".HUF");
+        }
+        return file.getParent().resolve(baseName + ".HUF");
+    }
+
+    private String stripFileExtension(String fileName) {
+        int dotIndex = fileName.lastIndexOf('.');
+        return (dotIndex == -1) ? fileName : fileName.substring(0, dotIndex);
     }
 
     private void showError(String message) {

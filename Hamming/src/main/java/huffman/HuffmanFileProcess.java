@@ -76,7 +76,7 @@ public class HuffmanFileProcess{
                                         dos.write(current.getValue());
                                         i++;
                                         current = root;
-                                        if (i >= bytes) {
+                                         if (i >= bytes) {
                                             break;
                                         }
                                     }
