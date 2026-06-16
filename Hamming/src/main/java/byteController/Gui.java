@@ -192,11 +192,12 @@ public class Gui extends JFrame {
             showError("Seleccione un bloque válido para protección.");
             return;
         }
+        /* 
         if (HammingFileProccesor.processFileProtec(selectedFile, moduleBits)) {//aqui la proteccion del archivo
             statusLabel.setText("Archivo protegido exitosamente.");
         } else {
             showError("Error al proteger el archivo.");
-        }
+        }*/
     }
 
 
@@ -206,11 +207,11 @@ public class Gui extends JFrame {
             return;
         }
         int moduleBits = selectedModuleBits();
-        if (HammingFileProccesor.processFileError(selectedFile, moduleBits, one)) {//aqui la proteccion del archivo
+      /*  if (HammingFileProccesor.processFileError(selectedFile, moduleBits, one)) {//aqui la proteccion del archivo
             statusLabel.setText("Errores inyectados exitosamente.");
         } else {
             showError("Error al inyectar errores el archivo.");
-        }
+        }*/
 
       //  statusLabel.setText("Función de inyección de errores aún no implementada.");
     //    JOptionPane.showMessageDialog(this, "Inyección de errores temporalmente deshabilitada.", "Pendiente", JOptionPane.INFORMATION_MESSAGE);

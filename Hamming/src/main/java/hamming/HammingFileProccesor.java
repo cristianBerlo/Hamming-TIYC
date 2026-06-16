@@ -4,100 +4,103 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.BitSet;
 public class HammingFileProccesor {
-	     public static Boolean processFileError(Path pathString, int moduleBits, boolean one) {
-	        Hamming hamming = new Hamming(moduleBits);
-	        try {
-	            byte[] allBytes = Files.readAllBytes(pathString);// leer todo el archivo como bytes
-	            BitSet bitsFile = BitSet.valueOf(allBytes);// convertir bytes a bits
-	            int totalBits = allBytes.length * 8;
-	            BitSet result = new BitSet();
-	            int resultIndex = 0;
-	            String originalName = pathString.getFileName().toString();
-	            int dotIndex = originalName.lastIndexOf('.');
-	            String baseName = (dotIndex == -1) ? originalName : originalName.substring(0, dotIndex);
-	            int sizeModul=0;
-	            switch (moduleBits){ //luego modififcar  clase hamming para que me de el largo del bloque de datos y no tener que hacer esto
-	                case 8: sizeModul = 1;break;
-	                case 1024: sizeModul = 2; break;
-	                case 16384: sizeModul = 3; break;
-	            }
-	            String newName = baseName + ".HE" + sizeModul;
-	            Path outputPath = pathString.getParent().resolve(newName);      
-	            for (int i = 0; i < totalBits; i += moduleBits) {// procesar en bloques de moduleBits  0-8,8-16,16-24
-
-	                BitSet blok = new BitSet(moduleBits);
-	                blok = bitsFile.get(i,i+moduleBits ); //Hace lo mismo pero con un nivel de iteracion menos
-	                BitSet protecBloack;
-	                if(one) {
-	                 protecBloack = hamming.errorGeneration(0.8f,blok);
-	                }else {
-	                	protecBloack = hamming.TwoerrorGeneration(0.8f,blok);
-	                } //agrego error a cada bloque
-	                for (int k = 0; k < hamming.getLenght(); k++) { 
-	                    result.set(resultIndex++, protecBloack.get(k));
-	                }
-	            }
-	            byte[] output = new byte[(resultIndex + 7) / 8];
-	            for (int i = 0; i < resultIndex; i++) {
-	                if (result.get(i)) {
-	                    output[i / 8] |= (1 << (i % 8));
-	                } //Cristian si estas leyendo esto no uses toByteArray() borra los ultimos bits si son 0s
-	            }
-	            Files.write(outputPath, output); 
-	            return true;
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	            return false;
-	        }
-	    }
-	 
-    public static Boolean processFileProtec(Path pathString, int moduleBits) {
-        Hamming hamming = new Hamming(moduleBits);
-        try {
-            byte[] allBytes = Files.readAllBytes(pathString);// leer todo el archivo como bytes
-            String originalName = pathString.getFileName().toString();
-            int dotIndex = originalName.lastIndexOf('.');
-            String baseName = (dotIndex == -1) ? originalName : originalName.substring(0, dotIndex);
-            int sizeModul,blockDataZise;
-            sizeModul = 0;blockDataZise = 4;
-            switch (moduleBits){ //luego modififcar  clase hamming para que me de el largo del bloque de datos y no tener que hacer esto
-                case 8: sizeModul = 1;blockDataZise = 4;break;
-                case 1024: sizeModul = 2; blockDataZise = 1013;break;
-                case 16384: sizeModul = 3;blockDataZise = 16369;break;
-            }
-            String newName = baseName + ".HA" + sizeModul;
-            Path outputPath = pathString.getParent().resolve(newName);
-
-            BitSet bitsFile = BitSet.valueOf(allBytes);// convertir bytes a bits
-            int totalBits = allBytes.length * 8;
-            BitSet result = new BitSet();
-            int resultIndex = 0;
-            for (int i = 0; i < totalBits; i += blockDataZise) {// procesar en bloques de moduleBits
-                BitSet blok = new BitSet(blockDataZise);
-                blok = bitsFile.get(i,i+blockDataZise ); //Hace lo mismo pero con un nivel de iteracion menos
-                /* for (int j = 0; j < blockDataZise; j++) {// llenar bloque con bits del archivo
-                    if (i + j < totalBits) {
-                        blok.set(j, bitsFile.get(i + j));
-                    }
-                } */
-                BitSet protecBloack = hamming.hamming(blok); //hamminisando cada bloque
-                for (int k = 0; k < hamming.getLenght(); k++) { 
-                    result.set(resultIndex++, protecBloack.get(k));
-                }
-            }
-            byte[] output = new byte[(resultIndex + 7) / 8];
-            for (int i = 0; i < resultIndex; i++) {
-                if (result.get(i)) {
-                    output[i / 8] |= (1 << (i % 8));
-                } //Cristian si estas leyendo esto no uses toByteArray() borra los ultimos bits si son 0s
-            }
-            Files.write(outputPath, output); 
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+	       public static Path processFileError(Path pathString, int moduleBits, boolean one) {
+    Hamming hamming = new Hamming(moduleBits);
+    try {
+        byte[] allBytes = Files.readAllBytes(pathString);
+        BitSet bitsFile = BitSet.valueOf(allBytes); 
+        int totalBits = allBytes.length * 8;
+        BitSet result = new BitSet();
+        int resultIndex = 0;
+        String originalName = pathString.getFileName().toString();
+        int dotIndex = originalName.lastIndexOf('.');
+        String baseName = (dotIndex == -1) ? originalName : originalName.substring(0, dotIndex);
+        int sizeModul = 0;
+        switch (moduleBits) { 
+            case 8:     sizeModul = 1; break;
+            case 1024:  sizeModul = 2; break;
+            case 16384: sizeModul = 3; break;
         }
+        String newName = baseName + ".HE" + sizeModul;
+        Path outputPath = pathString.getParent().resolve(newName);      
+        int blockSize = hamming.getLenght(); 
+        
+        for (int i = 0; i < totalBits; i += blockSize) {
+            BitSet blok = bitsFile.get(i, i + blockSize); 
+            
+            BitSet protecBlock;
+            if (one) {
+                protecBlock = hamming.errorGeneration(0.8f, blok);
+            } else {
+                protecBlock = hamming.TwoerrorGeneration(0.8f, blok);
+            } 
+            
+            for (int k = 0; k < blockSize; k++) { 
+                result.set(resultIndex++, protecBlock.get(k));
+            }
+        }
+        byte[] output = new byte[(resultIndex + 7) / 8];
+        for (int i = 0; i < resultIndex; i++) {
+            if (result.get(i)) {
+                output[i / 8] |= (1 << (i % 8));
+            } 
+        }
+        
+        Files.write(outputPath, output); 
+        return outputPath; 
+        
+    } catch (IOException e) {
+        e.printStackTrace();
+        return null;
     }
+}
+    public static Path processFileProtec(Path pathString, int moduleBits) {
+    Hamming hamming = new Hamming(moduleBits);
+    try {
+        byte[] allBytes = Files.readAllBytes(pathString);
+        String originalName = pathString.getFileName().toString();
+        int dotIndex = originalName.lastIndexOf('.');
+        String baseName = (dotIndex == -1) ? originalName : originalName.substring(0, dotIndex);
+        
+        int sizeModul, blockDataZise;
+        sizeModul = 0; blockDataZise = 4;
+        switch (moduleBits) { 
+            case 8:     sizeModul = 1; blockDataZise = 4; break;
+            case 1024:  sizeModul = 2; blockDataZise = 1013; break;
+            case 16384: sizeModul = 3; blockDataZise = 16369; break;
+        }
+        String newName = baseName + ".HA" + sizeModul;
+        Path outputPath = pathString.getParent().resolve(newName);
+
+        BitSet bitsFile = BitSet.valueOf(allBytes); // convertir bytes a bits
+        int totalBits = allBytes.length * 8;
+        BitSet result = new BitSet();
+        int resultIndex = 0;
+        
+        for (int i = 0; i < totalBits; i += blockDataZise) {
+            BitSet blok = bitsFile.get(i, i + blockDataZise); 
+            
+            BitSet protecBloack = hamming.hamming(blok); // hamminisando cada bloque
+            for (int k = 0; k < hamming.getLenght(); k++) { 
+                result.set(resultIndex++, protecBloack.get(k));
+            }
+        }
+        
+        byte[] output = new byte[(resultIndex + 7) / 8];
+        for (int i = 0; i < resultIndex; i++) {
+            if (result.get(i)) {
+                output[i / 8] |= (1 << (i % 8));
+            } 
+        }
+        
+        Files.write(outputPath, output); 
+        return outputPath; 
+        
+    } catch (IOException e) {
+        e.printStackTrace();
+        return null; // Si falla, devolvemos null
+    }
+}
     
 
 public static Path unprotectFileProtect(Path pathString, int moduleBits, boolean correct) {
@@ -146,7 +149,8 @@ try {
         case 1024: sizeModul = 2; break;
         case 16384: sizeModul = 3; break;
     }
-    String newName = baseName + ".RHA" + sizeModul;
+    String preExten = correct ? ".DC" : ".DE";
+    String newName = baseName + preExten + sizeModul;
     Files.write(Path.of(newName), output);
     return Path.of(newName);
 } catch (IOException e) {
