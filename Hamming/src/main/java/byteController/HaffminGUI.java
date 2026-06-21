@@ -40,7 +40,6 @@ public class HaffminGUI extends JFrame {
         JButton injectTwoButton = new JButton("Introducir 2 errores");
         JButton decodeRawButton = new JButton("Desproteger sin corregir");
         JButton decodeCorrectButton = new JButton("Desproteger corrigiendo");
-        JButton compareButton = new JButton("Comparar archivos");
         JButton statsButton = new JButton("Ver estadísticas");
         JButton clearButton = new JButton("Limpiar");
 
@@ -52,7 +51,6 @@ public class HaffminGUI extends JFrame {
         injectTwoButton.addActionListener(this::injectTwoErrors);
         decodeRawButton.addActionListener(this::unprotectRaw);
         decodeCorrectButton.addActionListener(this::unprotectCorrect);
-        compareButton.addActionListener(this::compareFilesAction);
         statsButton.addActionListener(this::viewStatistics);
         clearButton.addActionListener(e -> clearAll());
 
@@ -77,19 +75,34 @@ public class HaffminGUI extends JFrame {
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.gridwidth = 2;
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        buttons.add(selectButton);
-        buttons.add(compactButton);
-        buttons.add(decompactButton);
-        buttons.add(protectButton);
-        buttons.add(injectOneButton);
-        buttons.add(injectTwoButton);
-        buttons.add(decodeRawButton);
-        buttons.add(decodeCorrectButton);
-        buttons.add(compareButton);
-        buttons.add(statsButton);
-        buttons.add(clearButton);
-        topPanel.add(buttons, gbc);
+        JPanel buttonContainer = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        
+        JPanel filePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        filePanel.add(selectButton);
+        buttonContainer.add(filePanel);
+        
+        JPanel huffmanPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        huffmanPanel.setBorder(BorderFactory.createTitledBorder("Huffman"));
+        huffmanPanel.add(compactButton);
+        huffmanPanel.add(decompactButton);
+        buttonContainer.add(huffmanPanel);
+        
+        JPanel hammingPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        hammingPanel.setBorder(BorderFactory.createTitledBorder("Hamming"));
+        hammingPanel.add(protectButton);
+        hammingPanel.add(injectOneButton);
+        hammingPanel.add(injectTwoButton);
+        hammingPanel.add(decodeRawButton);
+        hammingPanel.add(decodeCorrectButton);
+        buttonContainer.add(hammingPanel);
+        
+        JPanel toolsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        toolsPanel.setBorder(BorderFactory.createTitledBorder("Herramientas"));
+        toolsPanel.add(statsButton);
+        toolsPanel.add(clearButton);
+        buttonContainer.add(toolsPanel);
+        
+        topPanel.add(buttonContainer, gbc);
 
         originalArea = createTextArea("Texto original");
         recoveredArea = createTextArea("Texto recuperado / salida");
@@ -119,6 +132,8 @@ public class HaffminGUI extends JFrame {
     private JTextArea createTextArea(String title) {
         JTextArea area = new JTextArea();
         area.setEditable(false);
+        area.setLineWrap(true);
+        area.setWrapStyleWord(true);
         area.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         area.setBorder(BorderFactory.createTitledBorder(title));
         return area;
@@ -321,17 +336,20 @@ public class HaffminGUI extends JFrame {
     }
 
    private void compareFilesAction(ActionEvent event) {
-    JDialog compareDialog = new JDialog(this, "Comparador de Archivos", true);
+    JDialog compareDialog = new JDialog(this, "Estadísticas y Comparación Visual", true);
     compareDialog.setLayout(new GridBagLayout());
     GridBagConstraints gbc = new GridBagConstraints();
     gbc.insets = new Insets(8, 8, 8, 8);
     gbc.fill = GridBagConstraints.HORIZONTAL;
-    JLabel labelA = new JLabel("Archivo A: Ninguno");
+
+    JLabel labelA = new JLabel("Archivo A (Original): Ninguno");
     JButton btnA = new JButton("Seleccionar A");
-    final Path[] fileA = {null}; // Contenedor para la ruta A
-    JLabel labelB = new JLabel("Archivo B: Ninguno");
+    final Path[] fileA = {null};
+    
+    JLabel labelB = new JLabel("Archivo B (Resultado): Ninguno");
     JButton btnB = new JButton("Seleccionar B");
     final Path[] fileB = {null};
+
     btnA.addActionListener(e -> {
         JFileChooser chooser = new JFileChooser();
         if (chooser.showOpenDialog(compareDialog) == JFileChooser.APPROVE_OPTION) {
@@ -347,26 +365,53 @@ public class HaffminGUI extends JFrame {
             labelB.setText("Archivo B: " + fileB[0].getFileName().toString());
         }
     });
-    JButton btnProcesar = new JButton("Comparar Archivos");
+
+    JButton btnProcesar = new JButton("Generar Gráfica");
     btnProcesar.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 12));
     
     btnProcesar.addActionListener(e -> {
         if (fileA[0] == null || fileB[0] == null) {
-            JOptionPane.showMessageDialog(compareDialog, "Por favor, seleccione ambos archivos antes de continuar.", "Campos incompletos", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(compareDialog, "Por favor, seleccione ambos archivos.", "Campos incompletos", JOptionPane.WARNING_MESSAGE);
             return;
         }
         try {
-            String report = compareFiles(fileA[0], fileB[0]);
-            recoveredArea.setText(report);
-            selectedFile = fileA[0];
-            selectedFileLabel.setText("Archivo: " + fileA[0].getFileName());
-            generatedFileLabel.setText("Comparación completa");
-            statusLabel.setText("Comparación realizada con éxito.");
+            long sizeA = Files.size(fileA[0]);
+            long sizeB = Files.size(fileB[0]);
+            double reduction = sizeA == 0 ? 0 : ((double) (sizeA - sizeB) / sizeA) * 100;
+
+            JDialog reportDialog = new JDialog(this, "Reporte de Rendimiento", true);
+            reportDialog.setLayout(new BorderLayout(10, 10));
+
+            StatsChartPanel chart = new StatsChartPanel(
+                fileA[0].getFileName().toString(), sizeA, 
+                fileB[0].getFileName().toString(), sizeB
+            );
+            reportDialog.add(chart, BorderLayout.CENTER);
+            JPanel textSummaryPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+            textSummaryPanel.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+            
+            JLabel lblReduccion = new JLabel(String.format("Porcentaje de variación / Reducción: %.2f %%", reduction));
+            lblReduccion.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 13));
+            
+            long mismatchIndex = Files.mismatch(fileA[0], fileB[0]);
+            JLabel lblIntegridad = new JLabel(mismatchIndex == -1 ? "✓ Los archivos son idénticos binariamente." : "⚠ Los archivos difieren (Con ruido/cambios).");
+            lblIntegridad.setForeground(mismatchIndex == -1 ? new Color(34, 139, 34) : Color.RED);
+
+            textSummaryPanel.add(lblReduccion);
+            textSummaryPanel.add(lblIntegridad);
+            reportDialog.add(textSummaryPanel, BorderLayout.SOUTH);
+
+            reportDialog.pack();
+            reportDialog.setSize(550, 320);
+            reportDialog.setLocationRelativeTo(this);
             compareDialog.dispose();
+            reportDialog.setVisible(true);
+
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(compareDialog, "Error al leer los archivos: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(compareDialog, "Error al procesar tamaños: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     });
+
     gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 1.0;
     compareDialog.add(labelA, gbc);
     gbc.gridx = 1; gbc.weightx = 0.0;
@@ -378,67 +423,12 @@ public class HaffminGUI extends JFrame {
     gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2; gbc.fill = GridBagConstraints.NONE;
     gbc.anchor = GridBagConstraints.CENTER;
     compareDialog.add(btnProcesar, gbc);
+    
     compareDialog.pack();
     compareDialog.setSize(550, 180);
     compareDialog.setLocationRelativeTo(this);
     compareDialog.setVisible(true);
 }
-    private String compareFiles(Path fileA, Path fileB) throws IOException {
-        long sizeA = Files.size(fileA);
-        long sizeB = Files.size(fileB);
-        long diff = sizeB - sizeA;
-        double ratio = sizeA == 0 ? Double.NaN : (double) sizeB / sizeA;
-        double reduction = sizeA == 0 ? 0 : ((double) (sizeA - sizeB) / sizeA) * 100;
-
-        StringBuilder report = new StringBuilder();
-        report.append("Comparación de archivos:\n");
-        report.append("Archivo A: ").append(fileA.getFileName()).append("\n");
-        report.append("Archivo B: ").append(fileB.getFileName()).append("\n\n");
-        report.append("Tamaño A: ").append(sizeA).append(" bytes (" ).append(humanReadableSize(sizeA)).append(")\n");
-        report.append("Tamaño B: ").append(sizeB).append(" bytes (" ).append(humanReadableSize(sizeB)).append(")\n");
-        report.append("Diferencia: ").append(diff).append(" bytes\n");
-        report.append("Relación B/A: ").append(String.format("%.2f", ratio)).append("\n");
-        report.append("Reducción de tamaño de B respecto a A: ").append(String.format("%.2f", reduction)).append(" %\n");
-        report.append("Extensión A: ").append(fileExtension(fileA)).append("\n");
-        report.append("Extensión B: ").append(fileExtension(fileB)).append("\n");
-
-        if (fileA.equals(fileB)) {
-            report.append("\nLos archivos son el mismo archivo.");
-        } else if (sizeA == sizeB) {
-            report.append("\nLos archivos tienen el mismo tamaño.");
-        } else if (sizeB > sizeA) {
-            report.append("\nEl segundo archivo es más grande que el primero.");
-        } else {
-            report.append("\nEl segundo archivo es más pequeño que el primero.");
-        }
-
-        long mismatchIndex = Files.mismatch(fileA, fileB);
-        if (mismatchIndex == -1) {
-            report.append("\nLos archivos son binariamente idénticos.");
-        } else {
-            report.append("\nLos archivos difieren a partir del byte ").append(mismatchIndex).append(".");
-        }
-
-        return report.toString();
-    }
-
-    private String humanReadableSize(long bytes) {
-        if (bytes < 1024) {
-            return bytes + " B";
-        }
-        double kb = bytes / 1024.0;
-        if (kb < 1024) {
-            return String.format("%.2f KB", kb);
-        }
-        double mb = kb / 1024.0;
-        return String.format("%.2f MB", mb);
-    }
-
-    private String fileExtension(Path file) {
-        String name = file.getFileName().toString();
-        int dotIndex = name.lastIndexOf('.');
-        return dotIndex == -1 ? "(sin extensión)" : name.substring(dotIndex + 1).toUpperCase();
-    }
 
     private void clearAll() {
         selectedFile = null;
@@ -452,13 +442,21 @@ public class HaffminGUI extends JFrame {
     private String loadFilePreview(Path file) {
         try {
             byte[] data = Files.readAllBytes(file);
-            CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
-            decoder.onMalformedInput(CodingErrorAction.REPORT);
-            decoder.onUnmappableCharacter(CodingErrorAction.REPORT);
-            CharBuffer decoded = decoder.decode(ByteBuffer.wrap(data));
-            return decoded.toString();
-        } catch (CharacterCodingException e) {
-            return "Vista previa no disponible para archivo binario.";
+            try {
+                CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
+                decoder.onMalformedInput(CodingErrorAction.REPORT);
+                decoder.onUnmappableCharacter(CodingErrorAction.REPORT);
+                return decoder.decode(ByteBuffer.wrap(data)).toString();
+            } catch (CharacterCodingException e) {
+                CharsetDecoder decoderLatin1 = StandardCharsets.ISO_8859_1.newDecoder();
+                decoderLatin1.onMalformedInput(CodingErrorAction.REPORT);
+                decoderLatin1.onUnmappableCharacter(CodingErrorAction.REPORT);
+                try {
+                    return decoderLatin1.decode(ByteBuffer.wrap(data)).toString();
+                } catch (CharacterCodingException ex) {
+                    return "Vista previa no disponible para archivo binario.";
+                }
+            }
         } catch (IOException e) {
             return "No se pudo leer el archivo para vista previa.";
         }
@@ -479,15 +477,64 @@ public class HaffminGUI extends JFrame {
         statusLabel.setText("Error: " + message);
     }
 
-    private void showInfo(String message) {
-        JOptionPane.showMessageDialog(this, message, "Información", JOptionPane.INFORMATION_MESSAGE);
-        statusLabel.setText(message);
-    }
         private String compactedFilePath(Path file) {
         String originalName = file.getFileName().toString();
         int dotIndex = originalName.lastIndexOf('.');
         String baseName = (dotIndex == -1) ? originalName : originalName.substring(0, dotIndex);
         return file.getParent().resolve(baseName + ".HUF").toString();
     }
+
+private static class StatsChartPanel extends JPanel {
+    private final long sizeA;
+    private final long sizeB;
+    private final String nameA;
+    private final String nameB;
+
+    public StatsChartPanel(String nameA, long sizeA, String nameB, long sizeB) {
+        this.nameA = nameA;
+        this.sizeA = sizeA;
+        this.nameB = nameB;
+        this.sizeB = sizeB;
+        setPreferredSize(new Dimension(450, 200));
+        setBackground(Color.WHITE);
+        setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        int width = getWidth();
+        int height = getHeight();
+        
+        long max = Math.max(sizeA, sizeB);
+        if (max == 0) max = 1;
+
+        int barMaxW = width - 160; 
+        int barWidthA = (int) ((sizeA * barMaxW) / max);
+        int barWidthB = (int) ((sizeB * barMaxW) / max);
+        g2.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
+
+        g2.setColor(new Color(70, 130, 180)); 
+        g2.fillRect(130, 40, barWidthA, 35);
+        g2.setColor(Color.DARK_GRAY);
+        g2.drawString(nameA, 15, 62);
+        g2.drawString(sizeA + " B", 135 + barWidthA, 62);
+
+        g2.setColor(new Color(46, 139, 87));
+        g2.fillRect(130, 100, barWidthB, 35);
+        g2.setColor(Color.DARK_GRAY);
+        g2.drawString(nameB, 15, 122);
+        g2.drawString(sizeB + " B", 135 + barWidthB, 122);
+        
+
+        g2.setColor(Color.GRAY);
+        g2.drawLine(130, 25, 130, 155);
+    }
 }
+}
+
+
 

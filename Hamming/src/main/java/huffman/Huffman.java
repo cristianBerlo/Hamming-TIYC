@@ -33,15 +33,23 @@ public class Huffman {
     }
     
     public void preOrder(Node root, String code) {
-        if (root == null) {
-            return;
-        }
-        if (root.getLeft() == null && root.getRight() == null) {
-            huffmanCodes.put(root.getValue(), code);
-        }
-        preOrder(root.getLeft(), code + "0");
-        preOrder(root.getRight(), code + "1");
+    if (root == null) {
+        return;
     }
+
+    if (root.getLeft() == null && root.getRight() == null) {
+
+        if (code.isEmpty()) {
+            code = "0";
+        }
+
+        huffmanCodes.put(root.getValue(), code);
+        return;
+    }
+
+    preOrder(root.getLeft(), code + "0");
+    preOrder(root.getRight(), code + "1");
+}
     
     public HashMap<Byte, String> getHuffmanCodes() {
         return huffmanCodes;

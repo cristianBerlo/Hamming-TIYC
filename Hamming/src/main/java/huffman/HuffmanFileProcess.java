@@ -64,6 +64,13 @@ public class HuffmanFileProcess{
     		    	int bytes = dis.readInt();
     		        Huffman huffman = new Huffman(frequencies);
     		        Node root = huffman.buildTree();
+
+                    if (root.getLeft() == null && root.getRight() == null) {
+                        for (int i = 0; i < bytes; i++) {
+                            dos.write(root.getValue());
+                        }
+                        return newName;
+}
     		        HashMap codes = huffman.getHuffmanCodes();
     		        huffman.preOrder(root, "");
     		        Node current = root;
