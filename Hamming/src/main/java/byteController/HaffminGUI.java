@@ -1,20 +1,19 @@
 ﻿package byteController;
 import huffman.HuffmanFileProcess;
 import javax.swing.*;
-
 import hamming.HammingFileProccesor;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 public class HaffminGUI extends JFrame {
     private Path selectedFile;
@@ -40,6 +39,11 @@ public class HaffminGUI extends JFrame {
         JButton injectTwoButton = new JButton("Introducir 2 errores");
         JButton decodeRawButton = new JButton("Desproteger sin corregir");
         JButton decodeCorrectButton = new JButton("Desproteger corrigiendo");
+        JButton protectWithDateButton = new JButton("Comprimir con fecha");
+        JButton injectOneWithDateButton = new JButton("Introducir 1 error (fecha)");
+        JButton injectTwoWithDateButton = new JButton("Introducir 2 errores (fecha)");
+        JButton unprotectRawWithDateButton = new JButton("Desproteger sin corregir (fecha)");
+        JButton unprotectCorrectWithDateButton = new JButton("Desproteger corrigiendo (fecha)");
         JButton statsButton = new JButton("Ver estadísticas");
         JButton clearButton = new JButton("Limpiar");
 
@@ -47,6 +51,14 @@ public class HaffminGUI extends JFrame {
         compactButton.addActionListener(this::compactFile);
         decompactButton.addActionListener(this::decompactFile);
         protectButton.addActionListener(this::protectFile);
+        protectWithDateButton.addActionListener(this::showProtectWithDateDialog);
+
+        injectOneWithDateButton.addActionListener(this::injectOneErrorWithDate);
+        injectTwoWithDateButton.addActionListener(this::injectTwoErrorsWithDate);
+        unprotectRawWithDateButton.addActionListener(this::unprotectRawWithDate);
+        unprotectCorrectWithDateButton.addActionListener(this::unprotectCorrectWithDate);
+        
+        
         injectOneButton.addActionListener(this::injectOneError);
         injectTwoButton.addActionListener(this::injectTwoErrors);
         decodeRawButton.addActionListener(this::unprotectRaw);
@@ -95,6 +107,15 @@ public class HaffminGUI extends JFrame {
         hammingPanel.add(decodeRawButton);
         hammingPanel.add(decodeCorrectButton);
         buttonContainer.add(hammingPanel);
+
+        JPanel hammingDatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        hammingDatePanel.setBorder(BorderFactory.createTitledBorder("Hamming con Fechas"));
+        hammingDatePanel.add(protectWithDateButton);
+        hammingDatePanel.add(injectOneWithDateButton);
+        hammingDatePanel.add(injectTwoWithDateButton);
+        hammingDatePanel.add(unprotectRawWithDateButton);
+        hammingDatePanel.add(unprotectCorrectWithDateButton);
+        buttonContainer.add(hammingDatePanel);
         
         JPanel toolsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         toolsPanel.setBorder(BorderFactory.createTitledBorder("Herramientas"));
@@ -215,6 +236,133 @@ public class HaffminGUI extends JFrame {
             showError("Error al procesar y proteger el archivo.");
         }
 }
+
+   
+
+    private void showProtectWithDateDialog(ActionEvent event) {
+        if (selectedFile == null) {
+            showError("Seleccione primero un archivo para proteger.");
+            return;
+        }
+        int moduleBits = selectedModuleBits();
+        if (moduleBits < 0) {
+            showError("Seleccione un bloque válido para protección.");
+            return;
+        }
+
+        JDialog dialog = new JDialog(this, "Seleccionar fecha de lectura", true);
+        dialog.setLayout(new BorderLayout(8, 8));
+
+        JPanel center = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        center.add(new JLabel("¿Hasta qué fecha/hora estará bloqueado el archivo?"));
+
+        JSpinner dateSpinner = new JSpinner(new SpinnerDateModel());
+        dateSpinner.setEditor(new JSpinner.DateEditor(dateSpinner, "yyyy-MM-dd HH:mm:ss"));
+        center.add(dateSpinner);
+
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton ok = new JButton("Confirmar y Proteger");
+        JButton cancel = new JButton("Cancelar");
+
+        ok.addActionListener(e -> {
+            Date selected = (Date) dateSpinner.getValue();
+            long unlockDateMs = selected.getTime();
+
+            statusLabel.setText("Protegiendo archivo con candado temporal...");
+            dialog.dispose();
+
+            Path archivoGenerado = HammingFileProccesor.processFileProtecWithDate(selectedFile, moduleBits, unlockDateMs);
+            
+            if (archivoGenerado != null) {
+                selectedFile = archivoGenerado;
+                statusLabel.setText("¡Éxito! Archivo bloqueado hasta: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(selected));
+                generatedFileLabel.setText("Generado: " + archivoGenerado.getFileName());
+                recoveredArea.setText(loadFilePreview(archivoGenerado));
+            } else {
+                showError("Error al procesar y proteger el archivo con fecha.");
+            }
+        });
+
+        cancel.addActionListener(e -> dialog.dispose());
+        btnPanel.add(ok);
+        btnPanel.add(cancel);
+
+        dialog.add(center, BorderLayout.CENTER);
+        dialog.add(btnPanel, BorderLayout.SOUTH);
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
+    private void injectOneErrorWithDate(ActionEvent event) {
+        injectErrorWithDate(true);
+    }
+
+    private void injectTwoErrorsWithDate(ActionEvent event) {
+        injectErrorWithDate(false);
+    }
+
+    private void injectErrorWithDate(boolean oneError) {
+        if (selectedFile == null) {
+            showError("Seleccione primero un archivo para introducir errores.");
+            return;
+        }
+        String nombreArchivo = selectedFile.getFileName().toString();
+        if (!nombreArchivo.toUpperCase().contains(".HAT")) {
+            showError("Error: Solo se pueden introducir errores con este botón en archivos protegidos con fecha (.HAT1, .HAT2, .HAT3).");
+            return;
+        }
+        int moduleBits = selectedModuleBits();
+        if (moduleBits < 0) {
+            showError("Seleccione un bloque válido.");
+            return;
+        }
+        statusLabel.setText("Introduciendo error(es) saltando el candado temporal...");
+        
+        Path pathOut = HammingFileProccesor.processFileErrorWithDate(selectedFile, moduleBits, oneError);
+        
+        if (pathOut != null) {
+            this.selectedFile = pathOut;
+            this.selectedFileLabel.setText("Archivo: " + pathOut.getFileName().toString());
+            statusLabel.setText("Archivo modificado con error exitosamente.");
+            generatedFileLabel.setText("Generado: " + pathOut.getFileName().toString());
+            recoveredArea.setText(loadFilePreview(pathOut));
+        } else {
+            showError("Error al introducir errores.");
+        }
+    }
+
+    private void unprotectRawWithDate(ActionEvent event) {
+        unprotectWithDate(false);
+    }
+
+    private void unprotectCorrectWithDate(ActionEvent event) {
+        unprotectWithDate(true);
+    }
+
+    private void unprotectWithDate(boolean correct) {
+        if (selectedFile == null) {
+            showError("Seleccione primero un archivo para desproteger.");
+            return;
+        }
+        int moduleBits = selectedModuleBits();
+        if (moduleBits < 0) {
+            showError("Seleccione un bloque válido.");
+            return;
+        }
+        statusLabel.setText("Verificando candado temporal y decodificando...");
+        
+        Path archivoDesprotegido = HammingFileProccesor.unprotectFileProtectWithDate(selectedFile, moduleBits, correct);
+
+        if (archivoDesprotegido == null) {
+            showError("ACCESO DENEGADO O FALLO FATAL: El archivo está bloqueado por fecha o tiene demasiados errores que impiden su lectura.");
+        } else {
+            statusLabel.setText("¡Proceso completo! Archivo validado y recuperado.");
+            generatedFileLabel.setText(archivoDesprotegido.getFileName().toString());
+            String preview = loadFilePreview(archivoDesprotegido);
+            recoveredArea.setText(preview);
+        }
+    }
 
     private void injectOneError(ActionEvent event) {
         if (selectedFile == null) {
