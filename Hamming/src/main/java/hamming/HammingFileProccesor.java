@@ -98,7 +98,7 @@ public class HammingFileProccesor {
         
     } catch (IOException e) {
         e.printStackTrace();
-        return null; // Si falla, devolvemos null
+        return null;
     }
 }
     
@@ -213,9 +213,9 @@ public static Path processFileProtecWithDate(Path pathString, int moduleBits, lo
         try {
             byte[] fileBytes = Files.readAllBytes(pathString);
             java.nio.ByteBuffer buffer = java.nio.ByteBuffer.wrap(fileBytes);
-            long unlockDateMs = buffer.getLong(); // Lee los primeros 8 bytes
+            long unlockDateMs = buffer.getLong(); // Leo los primeros 8 bytes
             
-            if (System.currentTimeMillis() < unlockDateMs) {
+            if (System.currentTimeMillis() > unlockDateMs) {
                 long segundosFaltantes = (unlockDateMs - System.currentTimeMillis()) / 1000;
                 System.err.println("ARCHIVO BLOQUEADO. Faltan: " + segundosFaltantes + " seg.");
                 return null; // Rebota el proceso

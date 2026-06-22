@@ -273,7 +273,7 @@ public class HaffminGUI extends JFrame {
         dialog.setLayout(new BorderLayout(8, 8));
 
         JPanel center = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        center.add(new JLabel("¿Hasta qué fecha/hora estará bloqueado el archivo?"));
+        center.add(new JLabel("¿Hasta qué fecha/hora el archivo podra ser Leido?"));
 
         JSpinner dateSpinner = new JSpinner(new SpinnerDateModel());
         dateSpinner.setEditor(new JSpinner.DateEditor(dateSpinner, "yyyy-MM-dd HH:mm:ss"));
