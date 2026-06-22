@@ -289,9 +289,15 @@ public class HaffminGUI extends JFrame {
 
             statusLabel.setText("Protegiendo archivo con candado temporal...");
             dialog.dispose();
-
-            Path archivoGenerado = HammingFileProccesor.processFileProtecWithDate(selectedFile, moduleBits, unlockDateMs);
-            
+            HuffmanFileProcess.processFile(selectedFile);
+            Path generated = Path.of(compactedFilePath(selectedFile));
+            Path archivoGenerado = HammingFileProccesor.processFileProtecWithDate(generated, moduleBits, unlockDateMs);
+            try {
+				Files.deleteIfExists(generated);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
             if (archivoGenerado != null) {
                 selectedFile = archivoGenerado;
                 statusLabel.setText("¡Éxito! Archivo bloqueado hasta: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(selected));
@@ -370,15 +376,21 @@ public class HaffminGUI extends JFrame {
             return;
         }
         statusLabel.setText("Verificando candado temporal y decodificando...");
-        
-        Path archivoDesprotegido = HammingFileProccesor.unprotectFileProtectWithDate(selectedFile, moduleBits, correct);
 
+        Path archivoDesprotegido = HammingFileProccesor.unprotectFileProtectWithDate(selectedFile, moduleBits, correct);
+        String resultPath = HuffmanFileProcess.processFileHuf(archivoDesprotegido);
+        Path generated = Path.of(resultPath);
+        try {
+			Files.deleteIfExists(archivoDesprotegido);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
         if (archivoDesprotegido == null) {
             showError("ACCESO DENEGADO O FALLO FATAL: El archivo está bloqueado por fecha o tiene demasiados errores que impiden su lectura.");
         } else {
             statusLabel.setText("¡Proceso completo! Archivo validado y recuperado.");
-            generatedFileLabel.setText(archivoDesprotegido.getFileName().toString());
-            String preview = loadFilePreview(archivoDesprotegido);
+            generatedFileLabel.setText(generated.getFileName().toString());
+            String preview = loadFilePreview(generated);
             recoveredArea.setText(preview);
         }
     }

@@ -215,7 +215,7 @@ public static Path processFileProtecWithDate(Path pathString, int moduleBits, lo
             java.nio.ByteBuffer buffer = java.nio.ByteBuffer.wrap(fileBytes);
             long unlockDateMs = buffer.getLong(); // Leo los primeros 8 bytes
             
-            if (System.currentTimeMillis() > unlockDateMs) {
+            if (System.currentTimeMillis() < unlockDateMs) {
                 long segundosFaltantes = (unlockDateMs - System.currentTimeMillis()) / 1000;
                 System.err.println("ARCHIVO BLOQUEADO. Faltan: " + segundosFaltantes + " seg.");
                 return null; // Rebota el proceso
@@ -227,7 +227,7 @@ public static Path processFileProtecWithDate(Path pathString, int moduleBits, lo
             BitSet result = new BitSet();
             int resultIndex = 0;
             int blockSize = hamming.getLenght();
-
+            
             for (int i = 0; i < totalBits; i += blockSize) {
                 BitSet block = bitsFile.get(i, i + blockSize); 
                 BitSet datos;
