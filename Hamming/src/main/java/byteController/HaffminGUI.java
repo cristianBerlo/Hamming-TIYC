@@ -378,16 +378,13 @@ public class HaffminGUI extends JFrame {
         statusLabel.setText("Verificando candado temporal y decodificando...");
 
         Path archivoDesprotegido = HammingFileProccesor.unprotectFileProtectWithDate(selectedFile, moduleBits, correct);
-        String resultPath = HuffmanFileProcess.processFileHuf(archivoDesprotegido);
-        Path generated = Path.of(resultPath);
-        try {
-			Files.deleteIfExists(archivoDesprotegido);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+
+    
         if (archivoDesprotegido == null) {
             showError("ACCESO DENEGADO O FALLO FATAL: El archivo está bloqueado por fecha o tiene demasiados errores que impiden su lectura.");
         } else {
+            String resultPath = HuffmanFileProcess.processFileHuf(archivoDesprotegido);
+            Path generated = Path.of(resultPath);
             statusLabel.setText("¡Proceso completo! Archivo validado y recuperado.");
             generatedFileLabel.setText(generated.getFileName().toString());
             String preview = loadFilePreview(generated);
