@@ -173,7 +173,7 @@ public static Path processFileProtecWithDate(Path pathString, int moduleBits, lo
                 case 1024:  sizeModul = 2; blockDataZise = 1013; break;
                 case 16384: sizeModul = 3; blockDataZise = 16369; break;
             }
-            String newName = baseName + ".HAT" + sizeModul;
+            String newName = baseName + ".HA" + sizeModul;
             Path outputPath = pathString.getParent().resolve(newName);
 
             BitSet bitsFile = BitSet.valueOf(allBytes); 

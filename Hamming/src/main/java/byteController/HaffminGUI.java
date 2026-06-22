@@ -679,24 +679,28 @@ private static class StatsChartPanel extends JPanel {
         long max = Math.max(sizeA, sizeB);
         if (max == 0) max = 1;
 
-        int barMaxW = width - 160; 
+        int barMaxW = width - 240; 
+        if (barMaxW < 50) barMaxW = 50;
+
         int barWidthA = (int) ((sizeA * barMaxW) / max);
         int barWidthB = (int) ((sizeB * barMaxW) / max);
         g2.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
 
+        // --- DIBUJAR BARRA A ---
         g2.setColor(new Color(70, 130, 180)); 
         g2.fillRect(130, 40, barWidthA, 35);
         g2.setColor(Color.DARK_GRAY);
         g2.drawString(nameA, 15, 62);
-        g2.drawString(sizeA + " B", 135 + barWidthA, 62);
+        g2.drawString(sizeA + " B", 140 + barWidthA, 62);
 
+        // --- DIBUJAR BARRA B ---
         g2.setColor(new Color(46, 139, 87));
         g2.fillRect(130, 100, barWidthB, 35);
         g2.setColor(Color.DARK_GRAY);
         g2.drawString(nameB, 15, 122);
-        g2.drawString(sizeB + " B", 135 + barWidthB, 122);
-        
+        g2.drawString(sizeB + " B", 140 + barWidthB, 122);
 
+        // Eje de simetría
         g2.setColor(Color.GRAY);
         g2.drawLine(130, 25, 130, 155);
     }
