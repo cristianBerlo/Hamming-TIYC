@@ -122,8 +122,11 @@ public class HaffminGUI extends JFrame {
         toolsPanel.add(statsButton);
         toolsPanel.add(clearButton);
         buttonContainer.add(toolsPanel);
+ 
         
-        topPanel.add(buttonContainer, gbc);
+        topPanel.add(buttonContainer, gbc); 
+
+
 
         originalArea = createTextArea("Texto original");
         recoveredArea = createTextArea("Texto recuperado / salida");
@@ -140,10 +143,26 @@ public class HaffminGUI extends JFrame {
         content.add(splitPane, BorderLayout.CENTER);
         content.add(statusLabel, BorderLayout.SOUTH);
 
-        setContentPane(content);
+        JScrollPane mainScroll = new JScrollPane(content);
+        mainScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        mainScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        mainScroll.setBorder(null); 
+
+        setContentPane(mainScroll);
+        // ------------------------------------------
+
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setSize(1920, 1080);
+        setPreferredSize(Toolkit.getDefaultToolkit().getScreenSize());
+        pack();
+        setMinimumSize(new Dimension(1000, 700));
         setLocationRelativeTo(null);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(Toolkit.getDefaultToolkit().getScreenSize());
+        pack();
+        setMinimumSize(new Dimension(1000, 700));
+        setLocationRelativeTo(null);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
 
     public void showGui() {
