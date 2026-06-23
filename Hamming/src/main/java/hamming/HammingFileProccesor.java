@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.BitSet;
+import java.util.Random;
 public class HammingFileProccesor {
 	       public static Path processFileError(Path pathString, int moduleBits, boolean one) {
     Hamming hamming = new Hamming(moduleBits);
@@ -24,15 +25,15 @@ public class HammingFileProccesor {
         String newName = baseName + ".HE" + sizeModul;
         Path outputPath = pathString.getParent().resolve(newName);      
         int blockSize = hamming.getLenght(); 
-        
+    	Random random= new Random();
         for (int i = 0; i < totalBits; i += blockSize) {
             BitSet blok = bitsFile.get(i, i + blockSize); 
             
             BitSet protecBlock;
             if (one) {
-                protecBlock = hamming.errorGeneration(0.8f, blok);
+                protecBlock = hamming.errorGeneration(random.nextFloat(), blok);
             } else {
-                protecBlock = hamming.TwoerrorGeneration(0.8f, blok);
+                protecBlock = hamming.TwoerrorGeneration(random.nextFloat(), blok);
             } 
             
             for (int k = 0; k < blockSize; k++) { 
@@ -295,14 +296,14 @@ public static Path processFileProtecWithDate(Path pathString, int moduleBits, lo
             String newName = baseName + ".HET" + sizeModul;
             Path outputPath = pathString.getParent().resolve(newName);      
             int blockSize = hamming.getLenght(); 
-            
+            Random random = new Random();
             for (int i = 0; i < totalBits; i += blockSize) {
                 BitSet blok = bitsFile.get(i, i + blockSize); 
                 BitSet protecBlock;
                 if (one) {
-                    protecBlock = hamming.errorGeneration(0.8f, blok);
+                    protecBlock = hamming.errorGeneration(random.nextFloat(), blok);
                 } else {
-                    protecBlock = hamming.TwoerrorGeneration(0.8f, blok);
+                    protecBlock = hamming.TwoerrorGeneration(random.nextFloat(), blok);
                 } 
                 for (int k = 0; k < blockSize; k++) { 
                     result.set(resultIndex++, protecBlock.get(k));
